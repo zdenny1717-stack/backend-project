@@ -1,0 +1,52 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+const port = 3000;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+let menuItems = [
+  { id: 1, name: 'Rice', price: 10 },
+  { id: 2, name: 'Pork Giniling', price: 40 },
+  { id: 3, name: 'Menudo', price: 50 },
+  { id: 4, name: 'Monggos', price: 30 },
+  { id: 5, name: 'Fried Chicken', price: 35 },
+  { id: 6, name: 'Caldereta', price: 50 },
+  { id: 7, name: 'Ginataan', price: 30 },
+  { id: 8, name: 'Sandwich', price: 25 },
+  { id: 9, name: 'Casava Cake', price: 15 },
+  { id: 10, name: 'Banana Cue', price: 10 },
+  { id: 11, name: 'Turon', price: 15 },
+  { id: 12, name: 'Water', price: 15 },
+  { id: 13, name: 'Sprite', price: 15 },
+  { id: 14, name: 'Royal', price: 15 },
+  { id: 15, name: 'C2', price: 18 },
+  { id: 16, name: 'Iced Tea', price: 18 },
+  { id: 17, name: 'Coke', price: 15 }
+];
+
+let orders = [];
+
+app.get('/api/menu', (req, res) => {
+  res.json(menuItems);
+});
+
+app.post('/api/order', (req, res) => {
+  const { items, pickupTime } = req.body;
+  const orderId = orders.length + 1;
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const newOrder = { orderId, items, pickupTime, totalAmount, status: 'Pending' };
+  orders.push(newOrder);
+  res.status(201).json(newOrder);
+});
+
+app.get('/api/orders', (req, res) => {
+  res.json(orders);
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
