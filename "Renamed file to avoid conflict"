@@ -1,0 +1,72 @@
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+let cart = [
+  { id: 1, name: "Espresso", price: 2.50, qty: 1, img: "espresso.jpg" },
+  { id: 2, name: "Latte", price: 4.00, qty: 2, img: "latte.jpg" }
+];
+let orders = [];
+
+// Endpoint to get cart items
+app.get('/api/cart', (req, res) => {
+  const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toFixed(2);
+  res.json({ items: cart, total });
+});
+
+// Endpoint to update cart items
+app.post('/api/cart/update', (req, res) => {
+  const { id, qty } = req.body;
+  const itemIndex = cart.findIndex(item => item.id === id);
+
+  if (itemIndex > -1) {
+    if (qty > 0) {
+      cart[itemIndex].qty = qty;
+    } else {
+      cart.splice(itemIndex, 1);
+    }
+    return res.status(200).json({ message: "Cart updated successfully", cart });
+  }
+
+  res.status(404).json({ message: "Item not found in cart" });
+});
+
+
+app.post('/api/order', (req, res) => {
+  const { pickupTime, paymentMethod, clientName } = req.body;
+
+  if (cart.length === 0) {
+    return res.status(400).json({ message: "Cannot place order: cart is empty." });
+  }
+
+  const newOrder = {
+    orderId: orders.length + 1,
+    clientName,
+    items: [...cart],
+    total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toFixed(2),
+    pickupTime,
+    paymentMethod,
+    status: 'Pending',
+    createdAt: new Date().toISOString()
+  };
+
+  orders.push(newOrder);
+  cart = [];
+
+  res.status(201).json({ message: "Order placed successfully!", order: newOrder });
+});
+
+
+app.get('/api/orders', (req, res) => {
+  res.json(orders);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
