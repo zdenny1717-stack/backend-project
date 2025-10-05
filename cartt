@@ -14,13 +14,13 @@ let cart = [
 ];
 let orders = [];
 
-// Endpoint to get cart items
+
 app.get('/api/cart', (req, res) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toFixed(2);
   res.json({ items: cart, total });
 });
 
-// Endpoint to update cart items
+
 app.post('/api/cart/update', (req, res) => {
   const { id, qty } = req.body;
   const itemIndex = cart.findIndex(item => item.id === id);
@@ -68,5 +68,5 @@ app.get('/api/orders', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http:
 });
